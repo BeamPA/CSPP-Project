@@ -1,8 +1,7 @@
 import React from "react";
 import Swal from "sweetalert2";
-import { Theme, Button, Menu } from "react-daisyui";
-import logo from './assets/logo-gistda.png';
-import icon from './assets/arrow-up.png';
+import logo from '../assets/logo-gistda.png';
+
 
 function SNPPmain() {
   // ฟังก์ชันสำหรับ SweetAlert2
@@ -86,28 +85,12 @@ function SNPPmain() {
 
         {/* Theme Buttons */}
         <div className="mt-8 space-y-4">
-          <Theme dataTheme="dark">
-            <Button color="primary">Click me, dark!</Button>
-          </Theme>
-
-          <Theme dataTheme="light">
-            <Button color="primary">Click me, light!</Button>
-          </Theme>
+         
         </div>
 
         {/* Menu */}
         <div className="mt-8">
-          <Menu>
-            <Menu.Item>
-              <a>Item 1</a>
-            </Menu.Item>
-            <Menu.Item>
-              <a>Item 2</a>
-            </Menu.Item>
-            <Menu.Item>
-              <a>Item 3</a>
-            </Menu.Item>
-          </Menu>
+         
         </div>
       </div>
     </div>

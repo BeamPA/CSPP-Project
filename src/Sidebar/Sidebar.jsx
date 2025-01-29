@@ -1,9 +1,8 @@
 import React from "react";
-import logo from '../assets/logo-gistda.png'
-
+import logo from "../assets/logo-gistda.png";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
-  
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -11,20 +10,27 @@ function Sidebar() {
         {/* โลโก้อยู่ด้านบน */}
         <img src={logo} alt="Logo GISTDA" className="w-32 mx-auto mb-4" />
 
-        
         <div className="tabs flex flex-col items-start mt-20">
-          <hr className="w-full border-white mb-1" /> 
-          <a className="tab tab-lifted tab-active text-white text-[24px]">SNPP-VIIRS</a>
+          <hr className="w-full border-white mb-1" />
+          <Link
+            to="/SNPPmain"
+            className="tab tab-lifted text-white text-[24px]"
+          >
+            SNPP-VIIRS
+          </Link>
           <hr className="w-full border-white mt-4" />
         </div>
 
-        
         <div className="flex-grow"></div>
 
         <div className="tabs flex flex-col items-start">
-          <a className="tab tab-lifted text-white text-[24px]">Result history</a>
+          <Link to="/result" className="tab tab-lifted text-white text-[24px]">
+            Result history
+          </Link>
           <hr className="w-full border-white mt-4" />
-          <a className="tab tab-lifted text-white text-[24px]">Install</a>
+          <Link to="/install" className="tab tab-lifted text-white text-[24px]">
+            Install
+          </Link>
           <hr className="w-full border-white mt-4" />
           <a className="tab tab-lifted text-white text-[24px]">Log out</a>
         </div>

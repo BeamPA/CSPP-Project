@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './Sidebar/Sidebar';
 import Login from './Page_Login/login';
 import Install from './Page_Install/main-install';
-
+import SNPPmain from './Page_SNPPmain/SNPPmain';
 function App() {
   return (
     <Router>
@@ -13,7 +13,7 @@ function App() {
         {/* ส่วนของเนื้อหาแต่ละหน้า */}
         <div style={{ flex: 1, padding: '20px' }}>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<SNPPmain />} />
             <Route path="/install" element={<Install />} />
           </Routes>
         </div>
