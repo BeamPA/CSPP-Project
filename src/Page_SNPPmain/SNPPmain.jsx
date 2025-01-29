@@ -1,14 +1,10 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 1aa3698727a9e355af6e362b9a517de493dcbd73
 import React from "react";
 import Swal from "sweetalert2";
 import { Theme, Button, Menu } from "react-daisyui";
 import logo from './assets/logo-gistda.png';
 import icon from './assets/arrow-up.png';
 
-function App() {
+function SNPPmain() {
   // ฟังก์ชันสำหรับ SweetAlert2
   const showAlert = () => {
     Swal.fire({
@@ -117,4 +113,4 @@ function App() {
     </div>
   );
 }
-export default App;
+export default SNPPmain;
