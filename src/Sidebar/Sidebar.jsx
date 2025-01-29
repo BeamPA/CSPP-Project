@@ -1,5 +1,6 @@
 import React from "react";
-import logo from './assets/logo-gistda.png';
+import logo from '../assets/logo-gistda.png'
+
 
 function Sidebar() {
   
