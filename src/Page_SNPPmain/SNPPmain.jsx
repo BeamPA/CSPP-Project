@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1aa3698727a9e355af6e362b9a517de493dcbd73
 import React from "react";
 import Swal from "sweetalert2";
 import { Theme, Button, Menu } from "react-daisyui";
