@@ -13,7 +13,7 @@ function Sidebar() {
         <div className="tabs flex flex-col items-start mt-20">
           <hr className="w-full border-white mb-1" />
           <Link
-            to="/SNPPmain"
+            to="/snpp"
             className="tab tab-lifted text-white text-[24px]"
           >
             SNPP-VIIRS
