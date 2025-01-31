@@ -34,7 +34,6 @@ function Sidebar() {
           <a className="tab tab-lifted text-white text-[24px]">Log out</a>
         </div>
       </div>
-      <div className="flex-1 p-10 bg-[#EDEDED]"></div>
     </div>
   );
 }
