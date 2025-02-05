@@ -31,7 +31,7 @@ function Login({ onLogin }) {
       await signInWithEmailAndPassword(auth, email, password);
       Swal.fire({ title: 'Success!', text: 'Login successful!', icon: 'success', confirmButtonText: 'OK' }).then(() => {
         onLogin(email);
-        navigate('/snppmain'); // ไปที่หน้า main
+        navigate('/SNPP'); // ไปที่หน้า main
       });
     } catch (error) {
       Swal.fire({ title: 'Error!', text: error.message, icon: 'error', confirmButtonText: 'OK' });
