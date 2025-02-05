@@ -1,7 +1,24 @@
 import logo from "../assets/logo-gistda.png";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Sidebar() {
+  const handleLogout = (event) => {
+    event.preventDefault();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your session.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "OK",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/";
+      }
+    });
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -31,7 +48,9 @@ function Sidebar() {
             Install
           </Link>
           <hr className="w-full border-white mt-4" />
-          <a className="tab tab-lifted text-white text-[24px]">Log out</a>
+          <Link to="/" className="tab tab-lifted text-white text-[24px]" onClick={handleLogout}>
+            Log out
+          </Link>
         </div>
       </div>
     </div>
