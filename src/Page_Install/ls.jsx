@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from 'axios';
 
 const lsData = [
   {
@@ -74,6 +75,18 @@ function LS() {
               });
               return updated;
             });
+
+            // ส่งข้อมูลการติดตั้งเสร็จสมบูรณ์ไปยัง backend
+            axios.post('/api/update-software-status', {
+              categories: toInstall.map((index) => lsData[index].title), // ส่งชื่อซอฟต์แวร์ที่ติดตั้งเสร็จ
+              status: 1, // สถานะเป็น 1 หมายถึงการติดตั้งเสร็จ
+            })
+            .then(response => {
+              console.log('Software installation status updated:', response.data);
+            })
+            .catch(error => {
+              console.error('Error updating installation status:', error);
+            });
           }
           return newProgress;
         });
@@ -98,24 +111,30 @@ function LS() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold"> CSPP Legacy Software - No Support Provided</h1>
+        <h1 className="text-xl font-bold">CSPP Legacy Software - No Support Provided</h1>
         {lsData.length > 1 && (
           <button
-          className={`px-6 py-2 rounded flex items-center gap-2 ${
-            loading
-              ? "bg-gray-500 cursor-not-allowed"
+            className={`px-6 py-2 rounded flex items-center gap-2 ${
+              loading
+                ? "bg-gray-500 cursor-not-allowed"
+                : allInstalled
+                ? "bg-red-500"
+                : "bg-green-500"
+            } text-white`}
+            onClick={() => handleInstall(null, allInstalled)}
+            disabled={loading}
+          >
+            {loading
+              ? allInstalled
+                ? "Uninstalling..."
+                : "Installing..."
               : allInstalled
-              ? "bg-red-500" // สีแดงเมื่อเป็น "Uninstall All"
-              : "bg-green-500" // สีเขียวเมื่อเป็น "Install All"
-          } text-white`}
-          onClick={() => handleInstall(null, allInstalled)}
-          disabled={loading}
-        >
-          {loading ? (allInstalled ? "Uninstalling..." : "Installing...") : allInstalled ? "Uninstall all" : "Install all"}
-        </button>
+              ? "Uninstall all"
+              : "Install all"}
+          </button>
         )}
       </div>
-      <div className="mt-6 bg-white shadow-lg rounded-lg p-4 max-h-[900px] overflow-y-auto">
+      <div className="mt-6 bg-white shadow-lg rounded-lg p-4 max-h-[800px] overflow-y-auto">
         {lsData.map((table, tableIndex) => (
           <div key={tableIndex} className="mb-6 border rounded-lg overflow-hidden">
             <table className="min-w-full table-fixed">
@@ -131,7 +150,12 @@ function LS() {
                   <tr key={index} className="border-b">
                     <td className="px-4 py-2">{file.name}</td>
                     <td className="px-4 py-2">
-                      <a href={file.filename} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                      <a
+                        href={file.filename}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
                         {file.filename.split("/").pop()}
                       </a>
                     </td>
@@ -144,16 +168,31 @@ function LS() {
               <div className="w-1/3">
                 {progress[tableIndex] !== undefined && progress[tableIndex] < 100 && (
                   <div className="h-2 bg-gray-300 rounded-full">
-                    <div className="h-full bg-green-500 rounded-full" style={{ width: `${progress[tableIndex]}%` }}></div>
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${progress[tableIndex]}%` }}
+                    ></div>
                   </div>
                 )}
               </div>
               <button
-                className={`px-4 py-2 rounded text-white ${tableLoading === tableIndex ? "bg-gray-500 cursor-not-allowed" : installed[tableIndex] ? "bg-red-500" : "bg-blue-500"}`}
+                className={`px-4 py-2 rounded text-white ${
+                  tableLoading === tableIndex
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : installed[tableIndex]
+                    ? "bg-red-500"
+                    : "bg-blue-500"
+                }`}
                 onClick={() => handleInstall(tableIndex, installed[tableIndex])}
                 disabled={tableLoading === tableIndex}
               >
-                {tableLoading === tableIndex ? (installed[tableIndex] ? "Uninstalling..." : "Installing...") : installed[tableIndex] ? "Uninstall" : "Install"}
+                {tableLoading === tableIndex
+                  ? installed[tableIndex]
+                    ? "Uninstalling..."
+                    : "Installing..."
+                  : installed[tableIndex]
+                  ? "Uninstall"
+                  : "Install"}
               </button>
             </div>
           </div>
@@ -162,6 +201,5 @@ function LS() {
     </div>
   );
 }
-
 
 export default LS;
