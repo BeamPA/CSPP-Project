@@ -4,13 +4,7 @@ import Login from "./Page_Login/login";
 import ForgotPassword from "./Page_Login/forgot";
 import SNPP from "./Page_SNPPmain/SNPP";
 import Install from "./Page_Install/main-install";
-import SDR from "./Page_Install/sdr";
-import EDR from "./Page_Install/edr";
-import ISR from "./Page_Install/isr";
-import MR from "./Page_Install/mr";
-import US from "./Page_Install/us";
-import LS from "./Page_Install/ls";
-
+import SoftwareTable from "./Page_Install/SoftwareTable";
 
 function App() {
   const location = useLocation();
@@ -30,12 +24,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/snpp" element={<SNPP />} />
           <Route path="/install" element={<Install />} />
-          <Route path="/SDR" element={<SDR />} />
-          <Route path="/EDR" element={<EDR />} />
-          <Route path="/ISR" element={<ISR />} />
-          <Route path="/MR" element={<MR />} />
-          <Route path="/US" element={<US />} />
-          <Route path="/LS" element={<LS />} />
+          <Route path="/CSPP/:category" element={<SoftwareTable />} />
         </Routes>
       </div>
     </div>
