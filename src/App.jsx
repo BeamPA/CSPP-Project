@@ -2,7 +2,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar/Sidebar";
 import Login from "./Page_Login/login";
 import ForgotPassword from "./Page_Login/forgot";
-import SNPP from "./Page_SNPPmain/SNPP";
+import SNPP from "./Page_SNPPmain/SNPPV2";
 import Install from "./Page_Install/main-install";
 import SoftwareTable from "./Page_Install/SoftwareTable";
 
