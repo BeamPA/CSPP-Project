@@ -1,21 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { initializeApp } from 'firebase/app';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
-// การตั้งค่า Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBTjMlc736LoTIc8NkJ7z-yFwcGKBnGJmA",
-  authDomain: "csppproject-5568d.firebaseapp.com",
-  projectId: "csppproject-5568d",
-  storageBucket: "csppproject-5568d.firebasestorage.app",
-  messagingSenderId: "609930927322",
-  appId: "1:609930927322:web:c0d7077444519d976459e3",
-  measurementId: "G-8Y45PZZFRH"
-};
-// เชื่อมต่อ Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { auth } from '../assets/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
+
 function ForgotPassword() {
   const [email, setEmail] = useState('');
   const handleSendEmail = async (e) => {
