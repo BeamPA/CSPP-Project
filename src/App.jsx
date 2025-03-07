@@ -5,6 +5,8 @@ import ForgotPassword from "./Page_Login/forgot";
 import SNPP from "./Page_SNPPmain/SNPPV2";
 import Install from "./Page_Install/main-install";
 import SoftwareTable from "./Page_Install/SoftwareTable";
+import ResultHistory from "./Page_Result/result";
+import ProtectedRoute from "./Routes/ProtectedRoute";
 
 function App() {
   const location = useLocation();
@@ -22,9 +24,14 @@ function App() {
         <Routes>
           <Route path="/" element={<Login onLogin={handleLogin} />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/snpp" element={<SNPP />} />
-          <Route path="/install" element={<Install />} />
-          <Route path="/CSPP/:category" element={<SoftwareTable />} />
+
+          {/* ใช้ ProtectedRoute สำหรับหน้าที่ต้องการการล็อกอิน */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/snpp" element={<SNPP />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/CSPP/:category" element={<SoftwareTable />} />
+            <Route path="/result" element={<ResultHistory />} />
+          </Route>
         </Routes>
       </div>
     </div>

@@ -1,42 +1,56 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-// การตั้งค่า Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBTjMlc736LoTIc8NkJ7z-yFwcGKBnGJmA",
-  authDomain: "csppproject-5568d.firebaseapp.com",
-  projectId: "csppproject-5568d",
-  storageBucket: "csppproject-5568d.firebasestorage.app",
-  messagingSenderId: "609930927322",
-  appId: "1:609930927322:web:c0d7077444519d976459e3",
-  measurementId: "G-8Y45PZZFRH"
-};
-// เชื่อมต่อ Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { auth, signInWithEmailAndPassword } from '../assets/firebase';
+
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // เพิ่ม state สำหรับการโหลด
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // ตรวจสอบว่า user ได้ล็อกอินแล้วหรือยัง
+    const user = sessionStorage.getItem("user");
+    if (user) {
+      navigate("/snpp");  // ถ้ามี user ก็ให้ไปที่หน้า snpp
+    }
+  }, [navigate]);
+
+  const validateEmail = (email) => {
+    // ใช้ Regular Expression ตรวจสอบรูปแบบของ email
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return re.test(String(email).toLowerCase());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       Swal.fire({ title: 'Error!', text: 'Please enter email and password.', icon: 'error', confirmButtonText: 'OK' });
       return;
     }
+
+    setLoading(true);
+
     try {
       // ✅ ใช้ Firebase Authentication ตรวจสอบข้อมูล
       await signInWithEmailAndPassword(auth, email, password);
       Swal.fire({ title: 'Success!', text: 'Login successful!', icon: 'success', confirmButtonText: 'OK' }).then(() => {
+        
+        // บันทึกข้อมูลการล็อกอินใน sessionStorage
+        sessionStorage.setItem("user", email);
+
         onLogin(email);
-        navigate('/SNPP'); // ไปที่หน้า main
+        navigate('/snpp');  // ไปที่หน้า SNPP
       });
     } catch (error) {
       Swal.fire({ title: 'Error!', text: error.message, icon: 'error', confirmButtonText: 'OK' });
+    } finally {
+      setLoading(false);
     }
   };
+
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-500">
       <div className="w-full max-w-sm p-8 bg-white rounded-xl shadow-lg">
@@ -46,23 +60,44 @@ function Login({ onLogin }) {
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-black">Email</label>
-            <input type="email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Enter your email"
-              className="input input-bordered w-full rounded-lg transition-all duration-300 ease-in-out hover:border-blue-500 focus:ring-2 focus:ring-blue-500" />
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="Enter your email"
+              className="input input-bordered w-full rounded-lg transition-all duration-300 ease-in-out hover:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block text-sm font-medium text-black">Password</label>
-            <input type="password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Enter your password"
-              className="input input-bordered w-full rounded-lg transition-all duration-300 ease-in-out hover:border-blue-500 focus:ring-2 focus:ring-blue-500" />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+              className="input input-bordered w-full rounded-lg transition-all duration-300 ease-in-out hover:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            />
           </div>
           <div className="text-right mb-4">
             <Link to="/forgot-password" className="text-xs text-black hover:underline">Forgot password?</Link>
           </div>
-          <button type="submit" className="btn btn-primary w-full py-3 rounded-lg mb-4 bg-blue-500 text-white hover:bg-blue-600 transition-all hover:scale-105">
-            Log In
+          <button
+            type="submit"
+            className={`btn btn-primary w-full py-3 rounded-lg mb-4 bg-blue-500 text-white hover:bg-blue-600 transition-all hover:scale-105 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading} // ปิดปุ่มเมื่อกำลังโหลด
+          >
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
       </div>
     </div>
   );
 }
+
 export default Login;

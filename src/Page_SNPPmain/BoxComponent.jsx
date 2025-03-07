@@ -11,10 +11,10 @@ function BoxComponent({
   toggleStartStop,
   runCommand, }) {
     const isHovered =
-    (hoveredKey === "Flood Detection" && label === "SDR") ||
+    (hoveredKey === "Flood" && label === "SDR") ||
     (hoveredKey === label) ||
-    (hoveredKey === "Surface Reflectance and Vegetation Index" &&
-      (label === "SDR" || label === "EDR" || label === "Surface Reflectance and Vegetation Index"));
+    (hoveredKey === "LSR" &&
+      (label === "SDR" || label === "EDR" || label === "LSR"));
   return (
     //Hover
     <div

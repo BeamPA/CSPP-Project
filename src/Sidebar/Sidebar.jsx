@@ -1,8 +1,10 @@
 import logo from "../assets/logo-gistda.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   const handleLogout = (event) => {
     event.preventDefault();
     Swal.fire({
@@ -14,10 +16,12 @@ function Sidebar() {
       cancelButtonText: "Cancel"
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = "/";
+        sessionStorage.removeItem("user");  // ลบข้อมูลการล็อกอินจาก sessionStorage
+        navigate("/");  // นำทางไปหน้า Login
       }
     });
   };
+
 
   return (
     <div className="flex h-screen bg-gray-100">
