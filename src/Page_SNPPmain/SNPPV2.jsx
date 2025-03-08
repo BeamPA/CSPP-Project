@@ -1,50 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import icon from "../assets/arrow-up.png";
 import axios from "axios";
 import GridComponent from "./GridComponent";
 import handleFileUpload from "./handleFileUpload";
-function SNPPV2() {
-  // ###########################State Management######################################
-  const initialKeys = [
-    "SDR", "EDR", "Flood", "LSR", "Fire", "ASCI","ACSPO", "CLAVRx", "HSRTV", "HEAP",
-    "MIRS", "GAASP", "IAPP", "RT-STPS","QL", "POLAR2GRID", "HYDRA2"];
 
+function SNPPV2() {
+  const [keys, setKeys] = useState([]);
   const [hoveredKey, setHoveredKey] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [buttonStates, setButtonStates] = useState(Object.fromEntries(initialKeys.map((key) => [key, "Off"])));
-  const [startStates, setStartStates] = useState(Object.fromEntries(initialKeys.map((key) => [key, "Start"])));
-  const [progressStates, setProgressStates] = useState(Object.fromEntries(initialKeys.map((key) => [key, 0])));
+  const [buttonStates, setButtonStates] = useState({});
+  const [startStates, setStartStates] = useState({});
+  const [progressStates, setProgressStates] = useState({});
   const [fileName, setFileName] = useState("Import RDR file");
-  const [intervals, setIntervals] = useState({}); // เก็บ interval แต่ละ key
-  const [isRunning, setIsRunning] = useState(Object.fromEntries(initialKeys.map((key) => [key, false])));
+  const [intervals, setIntervals] = useState({});
+  const [isRunning, setIsRunning] = useState({});
+
+  // Fetch keys from API on component mount
+  useEffect(() => {
+    const fetchKeys = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/software/software-list");
+        console.log("API Response:", response.data); // Log การตอบกลับจาก API
+        const softwareList = response.data.softwareList; // ดึงข้อมูล softwareList
+        setKeys(softwareList);
+  
+        // ตั้งค่า states ตาม list ของ software
+        setButtonStates(Object.fromEntries(softwareList.map((key) => [key, "Off"])));
+        setStartStates(Object.fromEntries(softwareList.map((key) => [key, "Start"])));
+        setProgressStates(Object.fromEntries(softwareList.map((key) => [key, 0])));
+        setIsRunning(Object.fromEntries(softwareList.map((key) => [key, false])));
+      } catch (error) {
+        console.error("❌ Error fetching software list:", error);
+      }
+    };
+  
+    fetchKeys();
+  }, []);
+  
 
   // ##############################API Call Functions###################################
 
   const shutdownServer = async (key) => {
     try {
       console.log(`🛑 Shutting down ${key}...`);
-      await fetch("http://localhost:5000/shutdown", { method: "POST" });
+      await fetch("http://localhost:3000/shutdown", { method: "POST" });
     } catch (error) {
       console.error("❌ Error shutting down server:", error);
     }
   };
 
   const runCommand = async (key) => {
-    if (isRunning[key]) return; // ✅ ป้องกันการรันซ้ำ
+    if (isRunning[key]) return;
     try {
       setIsRunning((prev) => ({ ...prev, [key]: true }));
       setStartStates((prev) => ({ ...prev, [key]: "Stop" }));
       setProgressStates((prev) => ({ ...prev, [key]: 0 }));
 
-      const response = await axios.post("http://localhost:5000/start-command", { boxType: key });
+      const response = await axios.post("http://localhost:3000/start-command", { boxType: key });
 
       console.log("✅ Command started:", response.data);
 
-      // ✅ ตั้ง interval เพื่อตรวจสอบ progress
       const progressInterval = setInterval(async () => {
         try {
-          const progressRes = await axios.get("http://localhost:5000/check-progress");
+          const progressRes = await axios.get("http://localhost:3000/check-progress");
           const progress = progressRes.data[key] ?? 0;
           setProgressStates((prev) => ({ ...prev, [key]: progress }));
 
@@ -54,14 +73,13 @@ function SNPPV2() {
             setIsRunning((prev) => ({ ...prev, [key]: false }));
             setProgressStates((prev) => ({ ...prev, [key]: 100 }));
 
-
             Swal.fire({
               title: "Processing Completed!!",
               text: `${key} Completed`,
               icon: "success",
               confirmButtonText: "Finish",
             }).then(() => {
-              shutdownServer(key); // ✅ ปิด process ของกล่องที่เสร็จสิ้น
+              shutdownServer(key);
             });
           }
         } catch (error) {
@@ -80,27 +98,22 @@ function SNPPV2() {
         const newState = prevState[key] === "Start" ? "Stop" : "Start";
 
         if (newState === "Stop") {
-          if (isRunning[key]) return prevState; // ✅ ป้องกันการรันซ้ำ
+          if (isRunning[key]) return prevState;
 
           setIsRunning((prev) => ({ ...prev, [key]: true }));
           setProgressStates((prev) => ({ ...prev, [key]: 0 }));
 
           if (key === "Flood") {
-            // ✅ ตั้งค่า isRunning ของ Flood ก่อน
             setIsRunning((prev) => ({ ...prev, ["Flood"]: true }));
-
 
             if (!isRunning["SDR"]) {
               runCommand("SDR");
             }
-            runCommand("Flood")
+            runCommand("Flood");
           } else {
-            runCommand(key, () => {
-              shutdownServer(key); // ✅ ปิดเซิร์ฟเวอร์หลังจากกระบวนการเสร็จ
-            });
+            runCommand(key);
           }
         } else {
-          // ✅ หยุดรันโดยใช้ shutdownServer ทันทีเมื่อกด Stop
           shutdownServer(key);
 
           if (intervals[key]) {
@@ -115,11 +128,7 @@ function SNPPV2() {
         return { ...prevState, [key]: newState };
       });
     }
-  }
-
-
-
-
+  };
 
   // #################################################################
 
@@ -127,13 +136,12 @@ function SNPPV2() {
     setSearchQuery(e.target.value.toLowerCase());
   };
 
-  const filteredKeys = initialKeys.filter((key) =>
+  const filteredKeys = keys.filter((key) =>
     key.toLowerCase().includes(searchQuery)
   );
 
-  <handleFileUpload />
+  <handleFileUpload />;
 
-  
   const toggleButton = (key) => {
     setButtonStates((prevState) => {
       const newState = prevState[key] === "Off" ? "On" : "Off";
@@ -144,12 +152,9 @@ function SNPPV2() {
     });
   };
 
-  // #################################################################
-
-
   return (
     <div>
-      {/* กล่อง Search */}
+      {/* Search Box */}
       <input
         type="text"
         placeholder="Search"
@@ -157,7 +162,7 @@ function SNPPV2() {
         onChange={handleSearch}
       />
 
-      {/* กล่องนำเข้า RDR file */}
+      {/* File Upload Box */}
       <div className="mb-4">
         <label
           htmlFor="file-upload"
