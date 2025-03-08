@@ -15,16 +15,17 @@ function SoftwareTable() {
   useEffect(() => {
     // ตรวจสอบ sessionStorage ว่ามีข้อมูลการติดตั้งที่ค้างไว้หรือไม่
     const storedProcessing = sessionStorage.getItem("processing");
-    const storedInstallingSoftware = sessionStorage.getItem("installingSoftware");
-  
+    const storedInstallingSoftware =
+      sessionStorage.getItem("installingSoftware");
+
     if (storedProcessing) {
       setProcessing(true);
     }
-  
+
     if (storedInstallingSoftware) {
-    setInstallingSoftware(JSON.parse(storedInstallingSoftware));
-  }
-  
+      setInstallingSoftware(JSON.parse(storedInstallingSoftware));
+    }
+
     if (category) {
       setLoading(true);
       fetch(`/api/install/software-files?categories=${category}`)
@@ -57,7 +58,6 @@ function SoftwareTable() {
         });
     }
   }, [category]);
-  
 
   useEffect(() => {
     // ปรับปรุงสถานะการติดตั้งเมื่อมีการเปลี่ยนแปลง
@@ -79,22 +79,26 @@ function SoftwareTable() {
     if (processing) return;
     setProcessing(true);
     sessionStorage.setItem("processing", "true");
-  
+
     let newInstallingSoftware = { ...installingSoftware };
-  
+
     if (tableIndex === null) {
       setInstallingAll(true);
       const toInstall = softwareData.reduce((acc, group, groupIndex) => {
-        if (!installed[groupIndex] && group.software_id !== 16) acc.push(groupIndex);
+        if (!installed[groupIndex] && group.software_id !== 16)
+          acc.push(groupIndex);
         return acc;
       }, []);
-  
+
       for (let i = 0; i < toInstall.length; i++) {
         const groupIndex = toInstall[i];
         newInstallingSoftware[groupIndex] = true;
         setInstallingSoftware({ ...newInstallingSoftware });
-        sessionStorage.setItem("installingSoftware", JSON.stringify(newInstallingSoftware));
-  
+        sessionStorage.setItem(
+          "installingSoftware",
+          JSON.stringify(newInstallingSoftware)
+        );
+
         try {
           await fetch(`/api/install/installSoftware`, {
             method: "POST",
@@ -103,17 +107,20 @@ function SoftwareTable() {
               software_id: softwareData[groupIndex].software_id,
             }),
           });
-  
+
           setInstalled((prev) => ({ ...prev, [groupIndex]: true }));
         } catch (error) {
           console.error("Error installing software:", error);
         }
-  
+
         delete newInstallingSoftware[groupIndex];
         setInstallingSoftware({ ...newInstallingSoftware });
-        sessionStorage.setItem("installingSoftware", JSON.stringify(newInstallingSoftware));
+        sessionStorage.setItem(
+          "installingSoftware",
+          JSON.stringify(newInstallingSoftware)
+        );
       }
-  
+
       setInstallingAll(false);
       Swal.fire({
         icon: "success",
@@ -125,8 +132,11 @@ function SoftwareTable() {
     } else {
       newInstallingSoftware[tableIndex] = true;
       setInstallingSoftware({ ...newInstallingSoftware });
-      sessionStorage.setItem("installingSoftware", JSON.stringify(newInstallingSoftware));
-  
+      sessionStorage.setItem(
+        "installingSoftware",
+        JSON.stringify(newInstallingSoftware)
+      );
+
       try {
         await fetch(`/api/install/installSoftware`, {
           method: "POST",
@@ -135,9 +145,9 @@ function SoftwareTable() {
             software_id: softwareData[tableIndex].software_id,
           }),
         });
-  
+
         setInstalled((prev) => ({ ...prev, [tableIndex]: true }));
-  
+
         Swal.fire({
           icon: "success",
           title: "ติดตั้งสำเร็จ!",
@@ -148,59 +158,66 @@ function SoftwareTable() {
       } catch (error) {
         console.error("Error installing software:", error);
       }
-  
+
       delete newInstallingSoftware[tableIndex];
       setInstallingSoftware({ ...newInstallingSoftware });
-      sessionStorage.setItem("installingSoftware", JSON.stringify(newInstallingSoftware));
+      sessionStorage.setItem(
+        "installingSoftware",
+        JSON.stringify(newInstallingSoftware)
+      );
     }
-  
+
     setProcessing(false);
     sessionStorage.removeItem("processing");
   };
-  
-  
+
   const handleUninstall = async (tableIndex = null) => {
     if (processing) return;
     setProcessing(true);
     sessionStorage.setItem("processing", "true");
 
-    const toUninstall = tableIndex !== null ? [tableIndex] : Object.keys(installed).filter(key => installed[key] === true);
+    const toUninstall =
+      tableIndex !== null
+        ? [tableIndex]
+        : Object.keys(installed).filter((key) => installed[key] === true);
     setInstallingAll(true);
 
-    let successfulUninstalls = []; 
-    let failedUninstalls = []; 
+    let successfulUninstalls = [];
+    let failedUninstalls = [];
 
     for (let i = 0; i < toUninstall.length; i++) {
-        const groupIndex = toUninstall[i];
+      const groupIndex = toUninstall[i];
 
-        if (installed[groupIndex] !== true) continue;
-        setInstallingSoftware((prev) => ({ ...prev, [groupIndex]: true }));
+      if (installed[groupIndex] !== true) continue;
+      setInstallingSoftware((prev) => ({ ...prev, [groupIndex]: true }));
 
-        try {
-            const response = await fetch(`/api/install/uninstallSoftware`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    software_id: softwareData[groupIndex]?.software_id,
-                }),
-            });
+      try {
+        const response = await fetch(`/api/install/uninstallSoftware`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            software_id: softwareData[groupIndex]?.software_id,
+          }),
+        });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            if (data.success) {
-                setInstalled((prev) => ({ ...prev, [groupIndex]: false }));
-                successfulUninstalls.push(softwareData[groupIndex]?.title || "ซอฟต์แวร์");
-            } else {
-                failedUninstalls.push(softwareData[groupIndex]?.title || "ซอฟต์แวร์");
-                console.error("Uninstall failed:", data.message);
-            }
-        } catch (error) {
-            console.error("Error uninstalling software:", error);
-            failedUninstalls.push(softwareData[groupIndex]?.title || "ซอฟต์แวร์");
+        if (data.success) {
+          setInstalled((prev) => ({ ...prev, [groupIndex]: false }));
+          successfulUninstalls.push(
+            softwareData[groupIndex]?.title || "ซอฟต์แวร์"
+          );
+        } else {
+          failedUninstalls.push(softwareData[groupIndex]?.title || "ซอฟต์แวร์");
+          console.error("Uninstall failed:", data.message);
         }
+      } catch (error) {
+        console.error("Error uninstalling software:", error);
+        failedUninstalls.push(softwareData[groupIndex]?.title || "ซอฟต์แวร์");
+      }
 
-        setInstallingSoftware((prev) => ({ ...prev, [groupIndex]: false }));
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      setInstallingSoftware((prev) => ({ ...prev, [groupIndex]: false }));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     setInstallingAll(false);
@@ -208,33 +225,45 @@ function SoftwareTable() {
     sessionStorage.removeItem("processing");
 
     // 🔹 แสดงแจ้งเตือนให้ถูกต้อง
-    if (successfulUninstalls.length > 0 && failedUninstalls.length === 0) {
-        Swal.fire({
-            icon: 'success',
-            title: tableIndex !== null ? 'ถอนการติดตั้งสำเร็จ!' : 'การถอนการติดตั้งทั้งหมดเสร็จสิ้น!',
-            text: tableIndex !== null
-                ? `${successfulUninstalls.join(", ")} ได้รับการถอนการติดตั้งเรียบร้อยแล้ว.`
-                : `ซอฟต์แวร์ทั้งหมดในหมวด "${category}" ถูกถอนการติดตั้งเรียบร้อยแล้ว.`,
-        }).then((result) => {
-            if (result.isConfirmed) window.location.reload();
-        });
-
+    if (successfulUninstalls.length === 0 && failedUninstalls.length > 0) {
+      Swal.fire({
+        icon: "success",
+        title:
+          tableIndex !== null
+            ? "Uninstallation Successful!"
+            : "All Uninstallations Completed!",
+        text:
+          tableIndex !== null
+            ? `${successfulUninstalls.join(
+                ", "
+              )} have been uninstalled successfully.`
+            : `All software in the category "${category}" has been uninstalled successfully.`,
+      }).then((result) => {
+        if (result.isConfirmed) window.location.reload();
+      });
     } else if (successfulUninstalls.length > 0 && failedUninstalls.length > 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'การถอนการติดตั้งเสร็จสิ้นบางส่วน!',
-            text: `ซอฟต์แวร์ต่อไปนี้ถูกถอนการติดตั้งเรียบร้อยแล้ว: ${successfulUninstalls.join(", ")}\n\nแต่ซอฟต์แวร์ต่อไปนี้ไม่สามารถถอนการติดตั้งได้: ${failedUninstalls.join(", ")}`,
-        });
-
-    } else if (successfulUninstalls.length === 0 && failedUninstalls.length > 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'การถอนการติดตั้งล้มเหลว!',
-            text: `ไม่สามารถถอนการติดตั้งซอฟต์แวร์ต่อไปนี้ได้: ${failedUninstalls.join(", ")} กรุณาลองใหม่.`,
-        });
+      Swal.fire({
+        icon: "warning",
+        title: "Partial Uninstallation Completed!",
+        text: `The following software has been uninstalled successfully: ${successfulUninstalls.join(
+          ", "
+        )}\n\nHowever, the following software could not be uninstalled: ${failedUninstalls.join(
+          ", "
+        )}`,
+      });
+    } else if (
+      successfulUninstalls.length > 0 &&
+      failedUninstalls.length === 0
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Uninstallation Failed!",
+        text: `The following software could not be uninstalled: ${failedUninstalls.join(
+          ", "
+        )}. Please try again.`,
+      });
     }
-};
-
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -323,26 +352,27 @@ function SoftwareTable() {
                 </div>
                 {softwareData[groupIndex].software_id !== 16 && (
                   <button
-                    className={`px-4 py-2 rounded text-white ${
-                      installed[groupIndex] === true
-                        ? "bg-red-500"
-                        : installed[groupIndex] === false
-                        ? "bg-blue-500"
-                        : "bg-gray-500 cursor-not-allowed"
-                    }`}
-                    onClick={() =>
-                      installed[groupIndex] === true
-                        ? handleUninstall(groupIndex)
-                        : handleInstall(groupIndex)
-                    }
-                    disabled={installed[groupIndex] === null || processing}
-                  >
-                    {installed[groupIndex] === true
-                      ? "Uninstall"
+                  className={`px-4 py-2 rounded text-white ${
+                    installed[groupIndex] === true
+                      ? "bg-red-500"
                       : installed[groupIndex] === false
-                      ? "Install"
-                      : "Processing..."}
-                  </button>
+                      ? "bg-blue-500"
+                      : "bg-gray-500 cursor-not-allowed"
+                  }`}
+                  onClick={() =>
+                    installed[groupIndex] === true
+                      ? handleUninstall(groupIndex)
+                      : handleInstall(groupIndex)
+                  }
+                  disabled={installed[groupIndex] === null || processing || installingSoftware[groupIndex]}
+                >
+                  {installingSoftware[groupIndex]
+                    ? "Processing..."
+                    : installed[groupIndex] === true
+                    ? "Uninstall"
+                    : "Install"}
+                </button>
+                
                 )}
               </div>
             </div>
