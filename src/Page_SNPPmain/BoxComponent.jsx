@@ -1,4 +1,3 @@
-
 function BoxComponent({
   label,
   isInteractive = false,

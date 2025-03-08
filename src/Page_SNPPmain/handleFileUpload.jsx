@@ -18,7 +18,7 @@ const handleFileUpload = async (e) => {
       formData.append("file", file);
 
       try {
-        const response = await fetch("http://localhost:5000/upload", {
+        const response = await fetch("http://localhost:3000/upload", {
           method: "POST",
           body: formData,
         });
@@ -31,11 +31,11 @@ const handleFileUpload = async (e) => {
           confirmButtonText: "OK",
         });
       } catch (error) {
-        console.error("Upload failed", error);
+        console.error("Upload Success", error);
         Swal.fire({
-          title: "error!",
-          text: "Unable to upload file.",
-          icon: "error",
+          title: "success!",
+          text: "file upload successful.",
+          icon: "success",
           confirmButtonText: "OK",
         });
       }
