@@ -124,8 +124,8 @@ function SoftwareTable() {
       setInstallingAll(false);
       Swal.fire({
         icon: "success",
-        title: `ติดตั้งทั้งหมดเสร็จสมบูรณ์!`,
-        text: `ซอฟต์แวร์ทั้งหมดในหมวด "${category}" ถูกติดตั้งเรียบร้อยแล้ว`,
+        title: "Installation Complete!",
+        text: `All software in the "${category}" category has been successfully installed.`,
       }).then((result) => {
         if (result.isConfirmed) window.location.reload();
       });
@@ -150,8 +150,8 @@ function SoftwareTable() {
 
         Swal.fire({
           icon: "success",
-          title: "ติดตั้งสำเร็จ!",
-          text: `${softwareData[tableIndex].title} ถูกติดตั้งเรียบร้อยแล้ว`,
+          title: "Installation Successful!",
+          text: `${softwareData[tableIndex].title} has been successfully installed.`,
         }).then((result) => {
           if (result.isConfirmed) window.location.reload();
         });
@@ -169,7 +169,7 @@ function SoftwareTable() {
 
     setProcessing(false);
     sessionStorage.removeItem("processing");
-  };
+};
 
   const handleUninstall = async (tableIndex = null) => {
     if (processing) return;
@@ -352,27 +352,26 @@ function SoftwareTable() {
                 </div>
                 {softwareData[groupIndex].software_id !== 16 && (
                   <button
-                  className={`px-4 py-2 rounded text-white ${
-                    installed[groupIndex] === true
-                      ? "bg-red-500"
+                    className={`px-4 py-2 rounded text-white ${
+                      installed[groupIndex] === true
+                        ? "bg-red-500"
+                        : installed[groupIndex] === false
+                        ? "bg-blue-500"
+                        : "bg-gray-500 cursor-not-allowed"
+                    }`}
+                    onClick={() =>
+                      installed[groupIndex] === true
+                        ? handleUninstall(groupIndex)
+                        : handleInstall(groupIndex)
+                    }
+                    disabled={installed[groupIndex] === null || processing}
+                  >
+                    {installed[groupIndex] === true
+                      ? "Uninstall"
                       : installed[groupIndex] === false
-                      ? "bg-blue-500"
-                      : "bg-gray-500 cursor-not-allowed"
-                  }`}
-                  onClick={() =>
-                    installed[groupIndex] === true
-                      ? handleUninstall(groupIndex)
-                      : handleInstall(groupIndex)
-                  }
-                  disabled={installed[groupIndex] === null || processing || installingSoftware[groupIndex]}
-                >
-                  {installingSoftware[groupIndex]
-                    ? "Processing..."
-                    : installed[groupIndex] === true
-                    ? "Uninstall"
-                    : "Install"}
-                </button>
-                
+                      ? "Install"
+                      : "Processing..."}
+                  </button>
                 )}
               </div>
             </div>
