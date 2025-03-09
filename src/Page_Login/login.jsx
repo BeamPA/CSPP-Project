@@ -6,19 +6,19 @@ import { auth, signInWithEmailAndPassword } from '../assets/firebase';
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // เพิ่ม state สำหรับการโหลด
+  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
-    // ตรวจสอบว่า user ได้ล็อกอินแล้วหรือยัง
+    // Check if user is already logged in
     const user = sessionStorage.getItem("user");
     if (user) {
-      navigate("/snpp");  // ถ้ามี user ก็ให้ไปที่หน้า snpp
+      navigate("/snpp");  // Redirect to snpp page if user is logged in
     }
   }, [navigate]);
 
   const validateEmail = (email) => {
-    // ใช้ Regular Expression ตรวจสอบรูปแบบของ email
+    // Use Regular Expression to validate email format
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return re.test(String(email).toLowerCase());
   };
@@ -26,30 +26,50 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      Swal.fire({ title: 'Error!', text: 'Please enter email and password.', icon: 'error', confirmButtonText: 'OK' });
+      Swal.fire({
+        title: 'Error!',
+        text: 'Please enter email and password.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
       return;
     }
 
     setLoading(true);
 
     try {
-      // ✅ ใช้ Firebase Authentication ตรวจสอบข้อมูล
-      await signInWithEmailAndPassword(auth, email, password);
-      Swal.fire({ title: 'Success!', text: 'Login successful!', icon: 'success', confirmButtonText: 'OK' }).then(() => {
-        
-        // บันทึกข้อมูลการล็อกอินใน sessionStorage
+      // ✅ Use Firebase Authentication to verify credentials
+      await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      Swal.fire({
+        title: 'Success!',
+        text: 'Login successful!',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        // Save login info in sessionStorage
         sessionStorage.setItem("user", email);
-
         onLogin(email);
-        navigate('/snpp');  // ไปที่หน้า SNPP
+        navigate('/snpp');  // Redirect to SNPP page
       });
     } catch (error) {
-      Swal.fire({ title: 'Error!', text: error.message, icon: 'error', confirmButtonText: 'OK' });
+      // Check for specific error
+      let errorMessage = "Incorrect email or password";  // Custom error message
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage = "Incorrect email or password"; // Custom message for this error
+      } else {
+        errorMessage = error.message;  // Use the error message returned from Firebase
+      }
+      
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-500">
@@ -90,7 +110,7 @@ function Login({ onLogin }) {
           <button
             type="submit"
             className={`btn btn-primary w-full py-3 rounded-lg mb-4 bg-blue-500 text-white hover:bg-blue-600 transition-all hover:scale-105 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loading} // ปิดปุ่มเมื่อกำลังโหลด
+            disabled={loading} // Disable button when loading
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
