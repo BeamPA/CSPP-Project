@@ -58,7 +58,7 @@ function ResultHistory() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex mx-auto">
       <div className="flex-1 p-8 ">
 
         <header className="flex justify-between items-center mb-8">
@@ -90,7 +90,7 @@ function ResultHistory() {
 
         {/* ตารางข้อมูล */}
         <div className="overflow-x-auto">
-          <div className="max-h-[500px] overflow-y-auto border border-gray-300 rounded-lg shadow-md">
+          <div className="max-h-[750px] overflow-y-auto border border-gray-300 rounded-lg shadow-md">
             <table className="table-auto w-full bg-white">
               <thead className="bg-blue-600 text-white sticky top-0 border-b-2 border-gray-300">
 
@@ -128,6 +128,7 @@ function ResultHistory() {
                             />
                           </div>
                         </td>
+                        
                         <td className="p-3 break-words text-gray-700 border-r border-gray-300" title={item.filename}>
                           {item.filename}
                         </td>

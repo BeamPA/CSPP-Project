@@ -6,25 +6,24 @@ import { auth, signInWithEmailAndPassword } from '../assets/firebase';
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
     const user = sessionStorage.getItem("user");
     if (user) {
-      navigate("/snpp");  // Redirect to snpp page if user is logged in
+      navigate("/snpp");
     }
   }, [navigate]);
 
   const validateEmail = (email) => {
-    // Use Regular Expression to validate email format
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return re.test(String(email).toLowerCase());
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       Swal.fire({
         title: 'Error!',
@@ -35,10 +34,19 @@ function Login({ onLogin }) {
       return;
     }
 
+    if (!validateEmail(email)) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Invalid email format. Please enter a valid email address.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // ✅ Use Firebase Authentication to verify credentials
       await signInWithEmailAndPassword(auth, email.trim(), password.trim());
       Swal.fire({
         title: 'Success!',
@@ -46,20 +54,18 @@ function Login({ onLogin }) {
         icon: 'success',
         confirmButtonText: 'OK'
       }).then(() => {
-        // Save login info in sessionStorage
         sessionStorage.setItem("user", email);
         onLogin(email);
-        navigate('/snpp');  // Redirect to SNPP page
+        navigate('/snpp');
       });
     } catch (error) {
-      // Check for specific error
-      let errorMessage = "Incorrect email or password";  // Custom error message
+      let errorMessage = "Incorrect email or password";
       if (error.code === 'auth/invalid-credential') {
-        errorMessage = "Incorrect email or password"; // Custom message for this error
+        errorMessage = "Incorrect email or password";
       } else {
-        errorMessage = error.message;  // Use the error message returned from Firebase
+        errorMessage = error.message;
       }
-      
+
       Swal.fire({
         title: 'Error!',
         text: errorMessage,
@@ -110,7 +116,7 @@ function Login({ onLogin }) {
           <button
             type="submit"
             className={`btn btn-primary w-full py-3 rounded-lg mb-4 bg-blue-500 text-white hover:bg-blue-600 transition-all hover:scale-105 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loading} // Disable button when loading
+            disabled={loading}
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
