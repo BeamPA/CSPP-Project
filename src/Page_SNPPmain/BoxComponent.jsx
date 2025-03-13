@@ -13,7 +13,7 @@ function BoxComponent({
     (hoveredKey === "Flood" && label === "SDR") ||
     (hoveredKey === label) ||
     (hoveredKey === "LSR" &&
-      (label === "SDR" || label === "EDR" || label === "LSR"));
+      (label === "SDR" || label === "ASCI" || label === "LSR"));
   return (
     //Hover
     <div
